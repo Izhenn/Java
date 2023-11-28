@@ -1,91 +1,88 @@
 import java.util.Scanner;
+import java.util.Stack;
 
 public class test {
+
 	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Please input year is ");
-		int year = sc.nextInt();
-		System.out.println("Please input month is ");
-		int month = sc.nextInt();
-		int totalday = 0;
-		int days = 0;
-		int Tday;
-		boolean febday;
-		//计算到目前年份的天数
-		for(int i = 1970; i < year; i++) {
-			if((i % 4 == 0 && i % 100 != 0)||(i % 400 == 0)) {
-				totalday = totalday + 366;
-			}else {
-				totalday = totalday + 365;
-			}
-		}
-		
-		
-		System.out.println("\n********** " + year +" year " + month +" month calendar **********");
-		//判断是否是闰年
-		if((year % 4 == 0 && year % 100 != 0)||(year % 400 == 0)) {
-			 febday = true;
-			
-		}	
-		
-			//计算本月到本年初的天数
-			int beforeday = 0;
-			for(int j = 1;j <= month; j++ ) {
-				switch(j) {
-				case 1:
-				case 3:
-				case 5:
-				case 7:
-				case 8:
-				case 10:
-				case 12:
-					days = 31;
-					break;
-				case 4:
-				case 6:
-				case 9:
-				case 11:
-					days = 30;
-					break;
-				case 2:
-					if(febday = true) {
-						days = 28 ;
-					}else {
-						days = 29 ;
-					}
-					break;
-				default:
-					System.out.println("输入错误");
-					break;
-				}
-//				if(j < month ) {
-					beforeday = beforeday + days;
-//				}
-				
-			}
-			
-			//到目前月份第一天的总天数
-			Tday = beforeday + totalday - days + 1;
-			//System.out.println(Tday);
-			int first1970week = 3;//1970年第一天为周四
-			// 0	1	 2	  3	   4	5	  6
-			//周一 周二 周三 周四 周五 周六 周日
-			//求是周几
-			int week = (Tday % 7 + first1970week - 1) % 7;
-			//System.out.println(week);
-			System.out.println("Mon\tTue\tWed\tThu\tFri\tSat\tSun");
-			for(int k=1; k <= week; k++) {
-				System.out.print("\t");
-			}
-			for(int m = 1; m <= days; m++) {
-				System.out.print(m + "\t");
-				if(m % 7 == (7 - week) % 7) {
-					System.out.print("\n");
-				}
-			}
-			
-		
-//		int week = (Tday + 6) / 7;
-//		System.out.println("sunday\tmonday\ttuesday\twednesday\tthursday\tfriday\tsaturday");
-	}
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("請輸入運算式：");
+        String expression = scanner.nextLine();
+
+        try {
+            double result = evaluateExpression(expression);
+            System.out.println("運算結果：" + result);
+        } catch (Exception e) {
+            System.out.println("輸入的運算式無效：" + e.getMessage());
+        }
+    }
+
+    public static double evaluateExpression(String expression) {
+        char[] tokens = expression.toCharArray();
+
+        // 運算符號堆疊
+        Stack<Character> operators = new Stack<>();
+        // 數字堆疊
+        Stack<Double> values = new Stack<>();
+
+        for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i] == ' ')
+                continue;
+
+            if (Character.isDigit(tokens[i])) {
+                StringBuilder sb = new StringBuilder();
+                while (i < tokens.length && (Character.isDigit(tokens[i]) || tokens[i] == '.')) {
+                    sb.append(tokens[i]);
+                    i++;
+                }
+                values.push(Double.parseDouble(sb.toString()));
+                i--;
+            } else if (tokens[i] == '(') {
+                operators.push(tokens[i]);
+            } else if (tokens[i] == ')') {
+                while (operators.peek() != '(') {
+                    values.push(applyOperator(operators.pop(), values.pop(), values.pop()));
+                }
+                operators.pop();
+            } else if (isOperator(tokens[i])) {
+                while (!operators.isEmpty() && hasPrecedence(tokens[i], operators.peek())) {
+                    values.push(applyOperator(operators.pop(), values.pop(), values.pop()));
+                }
+                operators.push(tokens[i]);
+            }
+        }
+
+        while (!operators.isEmpty()) {
+            values.push(applyOperator(operators.pop(), values.pop(), values.pop()));
+        }
+
+        return values.pop();
+    }
+
+    private static boolean isOperator(char c) {
+        return c == '+' || c == '-' || c == '*' || c == '/';
+    }
+
+    private static boolean hasPrecedence(char op1, char op2) {
+        if (op2 == '(' || op2 == ')')
+            return false;
+        return (op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-');
+    }
+
+    private static double applyOperator(char operator, double b, double a) {
+        switch (operator) {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                if (b == 0) {
+                    throw new ArithmeticException("除數不能為零");
+                }
+                return a / b;
+        }
+        return 0;
+    }
 }
