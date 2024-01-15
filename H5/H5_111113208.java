@@ -16,7 +16,6 @@ public class H5_111113208 {
         System.out.println("請輸入一個加減乘除及括號整數運算式");
         String inpuString=sc.nextLine();
         char[] tokens=inpuString.toCharArray();
-
         Stack<Character> operator=new Stack<>();
         Stack<Double> number=new Stack<>();
 
@@ -98,7 +97,7 @@ public class H5_111113208 {
             number.push(result);
         }
         System.out.println(number.pop());
-    }
+    }   //莫
     private static boolean Operator(char c){        //檢測當前字符是否為運算子
         if(c =='+' || c=='-' || c=='*' || c=='/'){
             return true;
